@@ -1,0 +1,43 @@
+{
+  "name": "shindan",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node decrypt.js && next dev",
+    "build": "node decrypt.js && next build",
+    "start": "node decrypt.js && next start",
+    "serve": "next dev",
+    "lint": "node decrypt.js && next lint"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^2.0.1",
+    "@chakra-ui/react": "^2.1.2",
+    "@emotion/react": "^11.9.0",
+    "@emotion/styled": "^11.8.1",
+    "aws-sdk": "^2.1148.0",
+    "dayjs": "^1.11.2",
+    "dotenv": "^16.0.1",
+    "firebase-admin": "^10.2.0",
+    "framer-motion": "^6.3.6",
+    "googleapis": "^100.0.0",
+    "next": "12.1.6",
+    "next-auth": "^4.3.4",
+    "nookies": "^2.5.2",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
+    "react-icons": "^4.4.0",
+    "sass": "^1.52.1",
+    "swr": "^1.3.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "@types/node": "17.0.38",
+    "@types/react": "18.0.10",
+    "@types/react-dom": "18.0.5",
+    "@types/uuid": "^8.3.4",
+    "browserify": "^17.0.0",
+    "eslint": "8.16.0",
+    "eslint-config-next": "12.1.6",
+    "typescript": "4.7.2"
+  }
+}

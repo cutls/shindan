@@ -1,0 +1,102 @@
+.indexLink {
+	width: 300px;
+}
+@media screen and (max-width: 900px) {
+	.indexLink {
+		width: 100%;
+	}
+}
+.main {
+	width: 600px;
+	max-width: 100%;
+}
+@media screen and (max-width: 900px) {
+	.main {
+		width: 100vw;
+	}
+}
+.subject {
+	padding: 5px;
+	&:hover {
+		background-color: var(--chakra-colors-blackAlpha-50);
+		transition-duration: 0.3s;
+	}
+}
+.file {
+	--chakra-space-3: 5px;
+	&:hover {
+		background-color: var(--chakra-colors-blackAlpha-50);
+		transition-duration: 0.3s;
+	}
+}
+.header {
+	padding: 5px;
+	background-color: #f9f9f9;
+	width: 100vw;
+}
+.badge {
+	margin-right: 5px;
+}
+.fullCenter {
+	height: 100vh;
+	justify-content: center;
+}
+.pointer {
+	cursor: pointer;
+}
+.link {
+	color: #0088ff !important;
+	cursor: pointer;
+	&:hover {
+		text-decoration: underline;
+	}
+}
+.whiteBg {
+	background-color: white !important;
+}
+.weightSelectBox {
+	background-color: white !important;
+	width: 150px !important;
+}
+.flexStartEnd {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+.box1 {
+	margin-top: 1rem;
+	padding: 1rem;
+	background-color: rgb(247, 248, 255);
+	border-radius: 1rem;
+}
+.box2 {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	padding: 1rem;
+	padding-left: 2rem;
+	background-color: rgb(235, 230, 252);
+	border-radius: 1rem;
+}
+.question {
+	background-color: #dbf5ff;
+	padding: 1rem;
+	border-radius: 1rem;
+	margin-bottom: 1rem;
+	.selectable {
+		background-color: white;
+		padding: 1rem;
+		margin: 1rem;
+		border-radius: 0.5rem;
+		border: solid 1px #fff;
+		cursor: pointer;
+		transition-duration: 0.3s;
+		&:hover {
+			border: solid 1px #43a7ff;
+			background-color: #bce0ff;
+		}
+		&.selected {
+			border: solid 2px #108dfb;
+		}
+	}
+}
