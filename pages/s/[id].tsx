@@ -1,47 +1,36 @@
-import type { NextPage, GetServerSideProps } from 'next'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import { parseCookies } from 'nookies'
 import SideMenu from '../../components/Menu'
 import {
-	AlertDialog,
-	AlertDialogBody,
-	AlertDialogContent,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogOverlay,
-	Badge,
 	Button,
 	Divider,
 	Flex,
 	Heading,
-	IconButton,
-	LinkBox,
-	LinkOverlay,
-	Menu,
-	MenuButton,
-	MenuItem,
-	MenuList,
-	Portal,
+	SlideFade,
 	Spinner,
-	Text,
 	useDisclosure,
 } from '@chakra-ui/react'
 import styles from '../../styles/Home.module.scss'
-import { ChevronDownIcon, DownloadIcon, TimeIcon, ViewIcon } from '@chakra-ui/icons'
-import dayjs from 'dayjs'
 import * as api from '../../utils/api'
 import { Credential } from '../../interfaces/credential'
-import { IShindan } from '../../interfaces/db'
+import { IResult, IShindan } from '../../interfaces/db'
 interface ISelected {
 	questionIndex: number
 	selectIndex: number
 }
+interface IExtendedResult extends IResult {
+	point: number
+}
+const openNewTab = (link: string) => (!window.open(link) ? (location.href = link) : window.open(link))
 
 const Home = (props: Credential) => {
 	const router = useRouter()
 	const { isOpen, onOpen, onClose } = useDisclosure()
+	const [mode, setMode] = useState<'answer' | 'result'>('answer')
+	const [resultTitle, setResultTitle] = useState('')
+	const [resultDesc, setResultDesc] = useState('')
+
 	const cancelRef = useRef<any>()
 	const [user, setUser] = useState(false)
 	const [loading, setLoading] = useState(false)
@@ -62,12 +51,10 @@ const Home = (props: Credential) => {
 	}, [router])
 	const [selected, setSelected] = useState<ISelected[]>([])
 	const select = (i: number, j: number) => {
-		const qs = data?.questions
-		if (!qs) return
 		const newSelected = []
 		const alreadyChoosen = !!selected.find((s) => s.questionIndex === i)
 		for (const s of selected) {
-			if(s.questionIndex === i) {
+			if (s.questionIndex === i) {
 				newSelected.push({ questionIndex: i, selectIndex: j })
 			} else {
 				newSelected.push(s)
@@ -75,9 +62,41 @@ const Home = (props: Credential) => {
 		}
 		if (!alreadyChoosen) newSelected.push({ questionIndex: i, selectIndex: j })
 		setSelected(newSelected)
-		console.log(selected)
+	}
+	const calculate = () => {
+		const points: IExtendedResult[] = []
+		for (const r of data?.results || []) points.push({
+			point: 0,
+			...r
+		})
+		const sortedSelected = selected.sort()
+		const qs = data?.questions
+		if (!qs) return
+		for (const s of sortedSelected) {
+			const i = s.selectIndex
+			const weights = qs[s.questionIndex].selections[i].weight
+			for (const w of weights) {
+				const ri = points.findIndex((r) => r.id === w.for)
+				points[ri].point = points[ri].point + w.weight
+			}
+		}
+		const sortedPoints = points.sort((a, b) => b.point - a.point)
+		setResultTitle(sortedPoints[0].title)
+		setResultDesc(sortedPoints[0].description)
+		setMode('result')
+	}
+	const shareTo = (media: 'twitter' | 'line') => {
+		if(media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！`)}&url=${encodeURIComponent(`https://shindan.vercel.app/s/${router.query.id}`)}`)
+		if(media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！ https://shindan.vercel.app/s/${router.query.id}`)}`)
+	}
+	const reset = () => {
+		setResultTitle('')
+		setResultDesc('')
+		setSelected([])
+		setMode('answer')
 	}
 	const getIsSelected = (i: number, j: number) => !!selected.find((s) => s.questionIndex === i && s.selectIndex === j)
+	const getIsCompleted = () => selected.length === data?.questions.length
 
 	if (!data) return <Spinner />
 	return (
@@ -91,18 +110,41 @@ const Home = (props: Credential) => {
 					<Heading as="h1" size="xl">
 						{data.name}
 					</Heading>
-					<div style={{height: 15}} />
-					{data.questions.map((q, i) => <div className={styles.question} key={`q--${i}`}>
-						<Heading as="h3" size="md">
-							{q.text}
-						</Heading>
-						{q.selections.map((s, j) =>
-							<div className={[styles.selectable, getIsSelected(i, j) ? styles.selected : null].join(' ')} key={`q--${i}--${j}`} onClick={() => select(i, j) }>
-								{s.name}
-							</div>
-						)}
-					</div>)}
+					<div style={{ height: 15 }} />
+					<SlideFade in={mode === 'answer'} offsetY='20px' style={{ display: mode === 'answer' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
+						{data.questions.map((q, i) => <div className={styles.question} key={`q--${i}`}>
+							<Heading as="h3" size="md">
+								{q.text}
+							</Heading>
+							{q.selections.map((s, j) =>
+								<div className={[styles.selectable, getIsSelected(i, j) ? styles.selected : null].join(' ')} key={`q--${i}--${j}`} onClick={() => select(i, j)}>
+									{s.name}
+								</div>
+							)}
+						</div>)}
+						<Button colorScheme="teal" size="lg" disabled={!getIsCompleted()} onClick={() => calculate()}>
+							結果を見る
+						</Button>
+					</SlideFade>
+					<SlideFade in={mode === 'result'} offsetY='20px' style={{ display: mode === 'result' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
+						<div className={styles.question}>
+							<Heading as="h3" size="2xl">
+								{resultTitle}
+							</Heading>
+							<Divider style={{ marginTop: 10, marginBottom: 10 }} />
+							<p>{resultDesc}</p>
+							<Divider style={{ marginTop: 10, marginBottom: 10 }} />
+							<Button colorScheme="twitter" onClick={() => shareTo('twitter')}>Twitterでシェア</Button>
+							<span style={{ marginLeft: 10 }} />
+							<Button colorScheme="whatsapp" onClick={() => shareTo('line')}>LINEでシェア</Button>
+						</div>
+						<Button colorScheme="teal" size="lg" onClick={() => reset()}>
+							もう一度診断
+						</Button>
+
+					</SlideFade>
 				</div>
+
 			</Flex>
 		</div>
 	)

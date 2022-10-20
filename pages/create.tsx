@@ -47,7 +47,7 @@ const Home = (props: Credential) => {
         init()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    const openNewTab = (link: string) => (!window.open(link) ? (location.href = link) : window.open(link))
+    
     const post = async () => {
         try {
             console.log({ results, questions, name })

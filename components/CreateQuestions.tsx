@@ -23,6 +23,7 @@ const Home = (props: IParam) => {
     const { setMode, results, questions, setQuestions, post } = props
     const [isEditQuestion, setIsEditQuestion] = useState(-1)
     const [newText, setNewText] = useState('')
+    const [loading, setLoading] = useState(false)
     const [newSelectionName, setNewSelectionName] = useState('')
     const [newSelections, setNewSelections] = useState<ISelection[]>([])
     const updateWeight = (qi: number, si: number, ri: number, resultId: string, val: number) => {
@@ -71,6 +72,7 @@ const Home = (props: IParam) => {
         setNewSelectionName('')
         setNewText('')
         setNewSelections([])
+        setIsEditQuestion(-1)
     }
     const addNewSelection = () => {
         const newNewSelections = structuredClone(newSelections)
@@ -116,10 +118,16 @@ const Home = (props: IParam) => {
         setIsEditQuestion(-1)
     }
     const complete = async () => {
-        const nowLength = questions.length
-        if (newText) return alert('「新しい問い」に記述が残っています。「問いの追加」ボタンを押して確定させてから「入力を終了」してください。')
-        if (confirm('診断を作成します')) {
-            post()
+        try {
+            setLoading(true)
+            if (newText) return alert('「新しい問い」に記述が残っています。「問いの追加」ボタンを押して確定させてから「入力を終了」してください。')
+            if (confirm('診断を作成します')) {
+                await post()
+            }
+        } catch (e) {
+            alert('Error')
+        } finally {
+            setLoading(false)
         }
     }
     return (
@@ -161,6 +169,7 @@ const Home = (props: IParam) => {
                                         <div key={`${selection.name}-result${k}`}>
                                             <span>{result.title}</span>
                                             <Select className={styles.weightSelectBox} value={getWeightValue(i, j, result.id)} onChange={(e) => updateWeight(i, j, k, result.id, parseInt(e.target.value, 10))}>
+                                                <option value={0}>(選択してください)</option>
                                                 <option value={1}>1(関連が低い)</option>
                                                 <option value={2}>2</option>
                                                 <option value={3}>3</option>
@@ -200,6 +209,7 @@ const Home = (props: IParam) => {
                                 <div key={`${selection.name}-result${k}`} style={{ marginLeft: 10 }}>
                                     <span>{result.title}</span>
                                     <Select className={styles.weightSelectBox} value={getWeightValue(-1, j, result.id)} onChange={(e) => updateWeight(-1, j, k, result.id, parseInt(e.target.value, 10))}>
+                                        <option value={0}>(選択してください)</option>
                                         <option value={1}>1(関連が低い)</option>
                                         <option value={2}>2</option>
                                         <option value={3}>3</option>
@@ -231,7 +241,7 @@ const Home = (props: IParam) => {
             }
 
             <Divider style={{ marginTop: 10, marginBottom: 10 }} />
-            <Button colorScheme="green" onClick={async () => complete()} ml={3}>
+            <Button colorScheme="green" onClick={async () => complete()} ml={3} isLoading={loading}>
                 入力を終了
             </Button>
         </>
