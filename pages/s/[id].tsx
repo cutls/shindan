@@ -96,8 +96,8 @@ const Home = (props: Credential) => {
 		setMode('result')
 	}
 	const shareTo = (media: 'twitter' | 'line') => {
-		if (media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！`)}&url=${encodeURIComponent(`https://shindan.vercel.app/s/${router.query.id}`)}`)
-		if (media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！ https://shindan.vercel.app/s/${router.query.id}`)}`)
+		if (media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！`)}&url=${encodeURIComponent(`https://shindanapp.vercel.app/s/${router.query.id}`)}`)
+		if (media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！ https://shindanapp.vercel.app/s/${router.query.id}`)}`)
 	}
 	const reset = () => {
 		setResultTitle('')
