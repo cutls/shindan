@@ -111,7 +111,9 @@ const Home = (props: Credential) => {
 	const getIsSelected = (i: number, j: number) => !!selected.find((s) => s.questionIndex === i && s.selectIndex === j)
 	const getIsCompleted = () => selected.length === data?.questions.length
 
-	if (!data) return <Spinner />
+	if (!data) return <Flex justifyContent="center" alignItems="center" flexDir="column" className={styles.centerOfScreen}>
+		<Spinner size="lg" />
+	</Flex>
 	return (
 		<div>
 			<Head>
