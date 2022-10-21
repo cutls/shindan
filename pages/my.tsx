@@ -89,7 +89,7 @@ const Home = (props: Credential) => {
             <Flex flexWrap="wrap">
                 <SideMenu isUser={true} />
                 <div style={{ padding: 15 }} className={styles.main}>
-                    {data.map((my, i) => <div className={styles.qs}>
+                    {data.map((my, i) => <div className={styles.qs} key={my.id}>
                         <div className={styles.flexStartEnd}>
                             <NextLink href={`/s/${my.listId}`} passHref>
                                 <Link>

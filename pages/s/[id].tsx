@@ -56,8 +56,8 @@ const Home = (props: Credential) => {
 			const routeId = router.query.id
 			if (typeof routeId !== 'string') return
 			init(routeId)
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [router])
 	const [selected, setSelected] = useState<ISelected[]>([])
 	const select = (i: number, j: number) => {
