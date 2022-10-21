@@ -1,3 +1,5 @@
+export default () => true
+/*
 import AWS from 'aws-sdk'
 export default async () => {
     AWS.config.update({
@@ -56,3 +58,4 @@ function readAsDataURL(blob: Blob) {
 		reader.readAsDataURL(blob)
 	})
 }
+*/
