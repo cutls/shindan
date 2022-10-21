@@ -45,10 +45,13 @@ const Home = (props: Credential) => {
 		try {
 			const id = router.query.id
 			if (!id) return alert('Error')
+			setLoading(true)
 			const { data, error } = await api.post<any>(`/api/user/visibility`, { id, status: 'public' })
-			if (data && !error) setData(data)
+			if (error) throw 'Error'
 		} catch {
 			alert(`Error`)
+		} finally {
+			setLoading(false)
 		}
 	}
 	useEffect(() => {
@@ -121,7 +124,7 @@ const Home = (props: Credential) => {
 						<Heading as="h1" size="xl">
 							{data.name}
 						</Heading>
-						{data.status === 'draft' && <Button colorScheme="blue" onClick={() => makePublic()} style={{ marginRight: 10 }}>
+						{data.status === 'draft' && <Button colorScheme="blue" onClick={() => makePublic()} style={{ marginRight: 10 }} isLoading={loading}>
 							公開する
 						</Button>}
 					</div>

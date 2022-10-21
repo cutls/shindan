@@ -20,7 +20,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		const request = JSON.parse(req.body)
 		const data = await db.get<IShindanList>('shindanList', request.id)
 		if (data?.userMail !== email) return res.status(400).json({ error: true, message: 'この操作は不可能です' })
-		await db.update(email, request.id, { status: 'private' })
+		await db.update(email, data.shindanId, { status: 'private' })
 		res.status(200).json({ success: true })
 	} catch (e: any) {
 		res.status(200).json({ error: true, message: e.toString() })
