@@ -19,8 +19,11 @@ import styles from '../styles/Home.module.scss'
 import { Credential } from '../interfaces/credential'
 import { IQuestion, IResult, IShindan } from '../interfaces/db'
 import * as api from '../utils/api'
-
-const Home = (props: Credential) => {
+interface IQuery {
+    shindanId: string | null
+    listId: string | null
+}
+const Home = (props: IQuery) => {
     const router = useRouter()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef<any>()
@@ -34,7 +37,7 @@ const Home = (props: Credential) => {
         if (cks.google || cks.accessToken) return
         if (!cks.google && !cks.accessToken) router.push('/auth/login')
     }, [router])
-    const obj = getSearchObj(location.search)
+    const obj = props
     const init = useCallback(async () => {
         const object = { a: 'b' }
         const cObj = structuredClone(object)
@@ -107,24 +110,13 @@ const Home = (props: Credential) => {
 export default Home
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const cookie = parseCookies(ctx)
-    const props: Credential = {
-        login: !!cookie.google
+    const query = ctx.query || { shindanId: null, listId: null}
+    const props = {
+        shindanId: query.shindanId || null,
+        listId: query.listId || null
     }
-    if (!props.login) return { redirect: { destination: '/auth/login', permanent: false } }
+    if (!cookie.google) return { redirect: { destination: '/auth/login', permanent: false } }
     return {
         props,
     }
-}
-function getSearchObj(searchStr: string): { [key: string]: string } {
-    if (!searchStr) return {};
-    return searchStr
-        .substr(1)
-        .split("&")
-        .reduce(
-            (acc, cur) => {
-                acc[cur.split("=")[0]] = cur.split("=")[1];
-                return acc;
-            },
-            {} as { [key: string]: string }
-        );
 }

@@ -44,9 +44,11 @@ const MenuComponent = (props: { isUser: boolean }) => {
 	}
 	return (
 		<div>
-			<Accordion defaultIndex={[0]} allowMultiple className={styles.indexLink}>
-				
-			</Accordion>
+			<NextLink href="/create" passHref>
+				<Button width="calc(100% - 30px)" leftIcon={<FaUpload />}>
+					新規作成
+				</Button>
+			</NextLink>
 			<div style={{ padding: 5 }}>
 				<a className={styles.link} onClick={() => logout()}>
 					ログアウト
