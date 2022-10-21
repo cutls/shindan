@@ -48,6 +48,7 @@ const Home = (props: Credential) => {
 			setLoading(true)
 			const { data, error } = await api.post<any>(`/api/user/visibility`, { id, status: 'public' })
 			if (error) throw 'Error'
+			router.reload()
 		} catch {
 			alert(`Error`)
 		} finally {

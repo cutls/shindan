@@ -9,6 +9,7 @@ import NextLink from 'next/link'
 import styles from '../styles/Home.module.scss'
 
 const Home = (props: Credential) => {
+	const [loading, setLoading] = useState(false)
 	return (
 		<div>
 			<Head>
@@ -20,7 +21,7 @@ const Home = (props: Credential) => {
 				</Heading>
 				<p style={{ marginTop: 15, marginBottom: 15 }}>オープンソース診断作成Webアプリケーション</p>
 				<NextLink href="/auth/login" passHref>
-					<Button size="lg" colorScheme="teal">はじめる</Button>
+					<Button size="lg" colorScheme="teal" onClick={() => setLoading(true)} isLoading={loading}>はじめる</Button>
 				</NextLink>
 			</Flex>
 		</div>

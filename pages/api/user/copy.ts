@@ -30,11 +30,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (!data) return res.status(400).json({ error: true, message: 'no shindan id found in request' })
         const { results, questions, name } = data
         const shindanId = uuid()
-        const set = {
-            id: shindanId, name: `[複製] ${name}`, results, questions
-        }
-        await db.put(email, id, set)
         const listId = uuid()
+        const set = {
+            id: shindanId, name: `[複製] ${name}`, results, questions, listId
+        }
+        await db.put(email, shindanId, set)
         const listData = {
             id: listId,
             userMail: email,

@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 		const email = session.user?.email
 		if (!email) return res.status(500).json({ error: true, message: 'ログインされていません' })
 		const request = JSON.parse(req.body)
-		const data = await db.get<IShindanList>('shindanList', request.id)
+		const data = await db.get<IShindanList>('shindanList', request.listId)
 		if (data?.userMail !== email) return res.status(400).json({ error: true, message: 'このIDは利用不可能です' })
 		await db.deleteItem('shindanList', request.listId)
 		await db.deleteItem(email, request.id)

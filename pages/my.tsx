@@ -54,8 +54,8 @@ const Home = (props: Credential) => {
     const copy = async (i: number) => {
         try {
             onOpen()
-            const data = await api.get<any>(`/api/user/copy`)
-            if (!data.data.success) throw 'Request Error'
+            const d = await api.post<any>(`/api/user/copy`, { id: data[i].id })
+            if (!d.data.success) throw 'Request Error'
             init()
         } catch (e: any) {
             alert(`Request Error ${e.toString()}`)
