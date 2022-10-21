@@ -12,11 +12,9 @@ interface LoginError {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IShindan[] | LoginError>) {
 	try {
-		const { authorization } = req.headers
-		console.log(authorization)
 		const session = await getSession({ req })
 		const email = session?.user?.email
-		if (!email || !(await authCheck(authorization))) return res.status(400).json({ error: true, message: 'auth error' })
+		if (!email) return res.status(400).json({ error: true, message: 'auth error' })
 		const list = await db.list<IShindan>(email)
 		res.status(200).json(list)
 	} catch (e) {

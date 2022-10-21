@@ -14,6 +14,7 @@ export interface IShindanList {
 }
 export interface IShindan {
     id: string
+    listId: string
     status: 'draft' | 'public' | 'private'
     name: string
     results: IResult[]

@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react'
 import styles from '../styles/Home.module.scss'
 import { Credential } from '../interfaces/credential'
-import { IQuestion, IResult } from '../interfaces/db'
+import { IQuestion, IResult, IShindan } from '../interfaces/db'
 import * as api from '../utils/api'
 
 const Home = (props: Credential) => {
@@ -34,6 +34,7 @@ const Home = (props: Credential) => {
         if (cks.google || cks.accessToken) return
         if (!cks.google && !cks.accessToken) router.push('/auth/login')
     }, [router])
+    const obj = getSearchObj(location.search)
     const init = useCallback(async () => {
         const object = { a: 'b' }
         const cObj = structuredClone(object)
@@ -41,19 +42,33 @@ const Home = (props: Credential) => {
         if (!cObj) unSupported = true
         if (cObj.a !== object.a) unSupported = true
         if (unSupported) alert(`診断作成非対応ブラウザです。`)
+        if (obj.listId) {
+            try {
+                const { data, error } = await api.post<IShindan>(`/api/get`, { id: obj.listId })
+                if (!data || error) return alert(`Error`)
+                setResults(data.results)
+                setQuestions(data.questions)
+                setName(data.name)
+            } catch {
+                alert(`Error`)
+            }
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     useEffect(() => {
         init()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
-    
+
     const post = async () => {
         try {
             console.log({ results, questions, name })
-            const data = await api.post<any>(`/api/user/post`, { results, questions, name })
+            const id = obj.shindanId || null
+            const set = id ? { results, questions, name, id } : { results, questions, name }
+            const url = id ? `/api/user/update` : `/api/user/post`
+            const data = await api.post<any>(url, set)
             if (!data.data.success) throw 'Request Error'
-            router.push('/')
+            router.push(`/s/${data.data.id}`)
         } catch (e: any) {
             alert(`Request Error ${e.toString()}`)
         }
@@ -99,4 +114,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     return {
         props,
     }
+}
+function getSearchObj(searchStr: string): { [key: string]: string } {
+    if (!searchStr) return {};
+    return searchStr
+        .substr(1)
+        .split("&")
+        .reduce(
+            (acc, cur) => {
+                acc[cur.split("=")[0]] = cur.split("=")[1];
+                return acc;
+            },
+            {} as { [key: string]: string }
+        );
 }

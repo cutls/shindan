@@ -2,12 +2,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import * as db from '../../../utils/db'
 import { getSession } from 'next-auth/react'
-import { IQuestion, IResult, IShindanList } from '../../../interfaces/db'
+import { IQuestion, IResult, IShindan, IShindanList } from '../../../interfaces/db'
 import { v4 as uuid } from 'uuid'
 
 type Data = {
     success: boolean
-    id: string
 }
 type Error = {
     error: boolean
@@ -24,22 +23,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (!session) return res.status(500).json({ error: true, message: 'ログインされていません' })
         const email = session.user?.email
         if (!email) return res.status(500).json({ error: true, message: 'ログインされていません' })
-        const request: IParam = JSON.parse(req.body)
-        const { name, results, questions } = request
-        if (!name || !results.length || !questions.length) return res.status(500).json({ success: false, id: `` })
-        const id = uuid()
-        const listId = uuid()
+        const request = JSON.parse(req.body)
+        const { id } = request
+
+        const data = await db.get<IShindan>(email, id)
+        if (!data) return res.status(400).json({ error: true, message: 'no shindan id found in request' })
+        const { results, questions, name } = data
+        const shindanId = uuid()
         const set = {
-            id, name, results, questions, status: 'draft', listId
+            id: shindanId, name: `[複製] ${name}`, results, questions
         }
         await db.put(email, id, set)
+        const listId = uuid()
         const listData = {
             id: listId,
             userMail: email,
-            shindanId: id
+            shindanId: shindanId
         }
         await db.put(`shindanList`, listId, listData)
-        res.status(200).json({ success: true, id: listId })
+        res.status(200).json({ success: true })
     } catch (e: any) {
         res.status(200).json({ error: true, message: e.toString() })
     }

@@ -21,6 +21,10 @@ export const put = async (collection: string, doc: string, data: any) => {
 	const docRef = db.collection(collection).doc(doc)
 	await docRef.set(data)
 }
+export const update = async (collection: string, doc: string, data: any) => {
+	const docRef = db.collection(collection).doc(doc)
+	await docRef.update(data)
+}
 export const get = async<T>(collection: string, doc: string) => {
 	const docRef = db.collection(collection).doc(doc)
 	const d = await docRef.get()

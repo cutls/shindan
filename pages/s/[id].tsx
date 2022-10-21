@@ -41,6 +41,16 @@ const Home = (props: Credential) => {
 		if (data && !error) setData(data)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
+	const makePublic = async () => {
+		try {
+			const id = router.query.id
+			if (!id) return alert('Error')
+			const { data, error } = await api.post<any>(`/api/user/visibility`, { id, status: 'public' })
+			if (data && !error) setData(data)
+		} catch {
+			alert(`Error`)
+		}
+	}
 	useEffect(() => {
 		if (router.isReady) {
 			const routeId = router.query.id
@@ -86,8 +96,8 @@ const Home = (props: Credential) => {
 		setMode('result')
 	}
 	const shareTo = (media: 'twitter' | 'line') => {
-		if(media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！`)}&url=${encodeURIComponent(`https://shindan.vercel.app/s/${router.query.id}`)}`)
-		if(media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！ https://shindan.vercel.app/s/${router.query.id}`)}`)
+		if (media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！`)}&url=${encodeURIComponent(`https://shindan.vercel.app/s/${router.query.id}`)}`)
+		if (media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！ https://shindan.vercel.app/s/${router.query.id}`)}`)
 	}
 	const reset = () => {
 		setResultTitle('')
@@ -107,9 +117,15 @@ const Home = (props: Credential) => {
 			<Flex flexWrap="wrap">
 				<SideMenu isUser={user} />
 				<div style={{ padding: 15 }} className={styles.main}>
-					<Heading as="h1" size="xl">
-						{data.name}
-					</Heading>
+					<div className={styles.flexStartEnd}>
+						<Heading as="h1" size="xl">
+							{data.name}
+						</Heading>
+						{data.status === 'draft' && <Button colorScheme="blue" onClick={() => makePublic()} style={{ marginRight: 10 }}>
+							公開する
+						</Button>}
+					</div>
+
 					<div style={{ height: 15 }} />
 					<SlideFade in={mode === 'answer'} offsetY='20px' style={{ display: mode === 'answer' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
 						{data.questions.map((q, i) => <div className={styles.question} key={`q--${i}`}>

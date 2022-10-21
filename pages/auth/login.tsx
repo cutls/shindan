@@ -23,7 +23,7 @@ export default function SignIn({ providers }: any) {
 		})
 
 		setTimeout(() => {
-			router.push('/')
+			router.push('/my')
 			setLoading(false)
 		}, 500)
 	}, [session])
