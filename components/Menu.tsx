@@ -88,7 +88,7 @@ export const Menu = (props: { isUser: boolean }) => {
 						<NextLink href="/" passHref>
 							<Link>
 								<Heading style={{ paddingLeft: 10 }} size="md">
-									shindanapp.vercel.app
+									shindanapp
 								</Heading>
 							</Link>
 						</NextLink>
@@ -118,7 +118,7 @@ export const Menu = (props: { isUser: boolean }) => {
 								<span>ログインされています</span>
 							) : (
 								<Heading style={{ padding: 5 }} size="md">
-									shindanapp.vercel.app
+									shindanapp
 								</Heading>
 							)}
 						</Link>

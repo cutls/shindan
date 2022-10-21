@@ -16,7 +16,7 @@ const Home = (props: Credential) => {
 			</Head>
 			<Flex justifyContent="center" alignItems="center" flexDir="column" className={styles.centerOfScreen}>
 				<Heading as="h1" size="3xl">
-					shindan
+					shindanapp
 				</Heading>
 				<p style={{ marginTop: 15, marginBottom: 15 }}>オープンソース診断作成Webアプリケーション</p>
 				<NextLink href="/auth/login" passHref>
