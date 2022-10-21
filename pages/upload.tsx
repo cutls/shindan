@@ -1,3 +1,5 @@
+export default () => null
+/*
 import {
 	Input,
 	Container,
@@ -90,3 +92,4 @@ const Home = (props: IMediaComponent) => {
 }
 
 export default Home
+*/
