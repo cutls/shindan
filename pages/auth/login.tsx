@@ -6,13 +6,15 @@ import Head from 'next/head'
 import styles from '../../styles/Home.module.scss'
 import { useSession } from 'next-auth/react'
 import { IGoogleCredential } from '../../interfaces/credential'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import router from 'next/router'
 import { setCookie } from 'nookies'
+import { PageLoadingContext } from '../../utils/context'
 const gcGuard = (item: any): item is IGoogleCredential => item && item.accessToken
 
 export default function SignIn({ providers }: any) {
 	const { data: session } = useSession()
+	const { loading: pageLoading } = useContext(PageLoadingContext)
 	const [loading, setLoading] = useState(true)
 	useEffect(() => {
 		if (!gcGuard(session)) return setLoading(false)
@@ -27,7 +29,7 @@ export default function SignIn({ providers }: any) {
 			setLoading(false)
 		}, 500)
 	}, [session])
-	if (loading)
+	if (loading || pageLoading)
 		return (
 			<>
 				<Head>

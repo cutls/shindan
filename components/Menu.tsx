@@ -101,17 +101,13 @@ export const Menu = (props: { isUser: boolean }) => {
 				</>
 			) : (
 				<div>
-					<NextLink href={props.isUser ? '/upload' : '/'} passHref>
-						<Link>
-							{props.isUser ? (
-								<span>ログインされています</span>
-							) : (
-								<Heading style={{ padding: 5 }} size="md">
-									shindanapp
-								</Heading>
-							)}
-						</Link>
-					</NextLink>
+					{props.isUser ? (
+						<span>ログインされています</span>
+					) : (
+						<Heading style={{ padding: 5 }} size="md">
+							shindanapp
+						</Heading>
+					)}
 					<MenuComponent isUser={props.isUser} />
 				</div>
 			)}

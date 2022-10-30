@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from 'next'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useContext } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
@@ -21,6 +21,7 @@ import styles from '../styles/Home.module.scss'
 import { Credential } from '../interfaces/credential'
 import { IQuestion, IResult, IShindan } from '../interfaces/db'
 import * as api from '../utils/api'
+import { PageLoadingContext } from '../utils/context'
 interface IQuery {
     shindanId: string | null
     listId: string | null
@@ -28,6 +29,7 @@ interface IQuery {
 const Home = (props: IQuery) => {
     const router = useRouter()
     const { isOpen, onOpen, onClose } = useDisclosure()
+	const { loading: pageLoading } = useContext(PageLoadingContext)
     const cancelRef = useRef<any>()
     const [mode, setMode] = useState<'result' | 'question'>('result')
     const [name, setName] = useState('')
@@ -91,7 +93,7 @@ const Home = (props: IQuery) => {
             </Head>
             <Flex flexWrap="wrap" flexGrow={2}>
                 <SideMenu isUser={true} />
-                {loading ?
+                {loading || pageLoading ?
                     <Container centerContent className={styles.fullCenter}>
                         <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
                     </Container>

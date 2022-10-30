@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from 'next'
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useContext } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { parseCookies } from 'nookies'
@@ -23,10 +23,12 @@ import styles from '../styles/Home.module.scss'
 import { Credential } from '../interfaces/credential'
 import { IShindan } from '../interfaces/db'
 import * as api from '../utils/api'
+import { PageLoadingContext } from '../utils/context'
 
 const sleep = (msec: number) => new Promise((resolve) => setTimeout(resolve, msec))
 const Home = (props: Credential) => {
     const router = useRouter()
+	const { loading: pageLoading } = useContext(PageLoadingContext)
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef<any>()
     const [loading, setLoading] = useState(true)
@@ -89,7 +91,7 @@ const Home = (props: Credential) => {
             </Head>
             <Flex flexWrap="wrap">
                 <SideMenu isUser={true} />
-                {loading ? 
+                {loading || pageLoading ? 
                 <Container centerContent className={styles.fullCenter}>
                     <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
                 </Container> 
