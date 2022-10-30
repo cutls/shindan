@@ -29,9 +29,14 @@ export default function SignIn({ providers }: any) {
 	}, [session])
 	if (loading)
 		return (
-			<Container centerContent className={styles.fullCenter}>
-				<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
-			</Container>
+			<>
+				<Head>
+					<title>shindan - login(loading)</title>
+				</Head>
+				<Container centerContent className={styles.fullCenter}>
+					<Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+				</Container>
+			</>
 		)
 	if (!providers) return <Heading>Error</Heading>
 	return (
@@ -48,6 +53,7 @@ export default function SignIn({ providers }: any) {
 							Googleでログイン
 						</Button>
 					))}
+					<p>ログインを完了されている場合は、しばらくお待ちください。</p>
 				</Container>
 			</main>
 		</div>

@@ -7,12 +7,14 @@ import SideMenu from '../components/Menu'
 import CreateResults from '../components/CreateResults'
 import CreateQuestions from '../components/CreateQuestions'
 import {
+    Container,
     Divider,
     Flex,
     Heading,
     Input,
     Portal,
     SlideFade,
+    Spinner,
     useDisclosure,
 } from '@chakra-ui/react'
 import styles from '../styles/Home.module.scss'
@@ -29,6 +31,7 @@ const Home = (props: IQuery) => {
     const cancelRef = useRef<any>()
     const [mode, setMode] = useState<'result' | 'question'>('result')
     const [name, setName] = useState('')
+    const [loading, setLoading] = useState(false)
     const [results, setResults] = useState<IResult[]>([])
     const [questions, setQuestions] = useState<IQuestion[]>([])
 
@@ -46,6 +49,7 @@ const Home = (props: IQuery) => {
         if (cObj.a !== object.a) unSupported = true
         if (unSupported) alert(`診断作成非対応ブラウザです。`)
         if (obj.listId) {
+            setLoading(true)
             try {
                 const { data, error } = await api.post<IShindan>(`/api/get`, { id: obj.listId })
                 if (!data || error) return alert(`Error`)
@@ -54,6 +58,8 @@ const Home = (props: IQuery) => {
                 setName(data.name)
             } catch {
                 alert(`Error`)
+            } finally {
+                setLoading(false)
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,18 +91,24 @@ const Home = (props: IQuery) => {
             </Head>
             <Flex flexWrap="wrap" flexGrow={2}>
                 <SideMenu isUser={true} />
-                <SlideFade in={mode === 'result'} offsetY='20px' style={{ display: mode === 'result' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
-                    <Heading as="h3" size="md">
-                        診断のタイトル
-                    </Heading>
-                    <Input className={styles.whiteBg} type="text" placeholder="タイトル" value={name} onChange={(e) => setName(e.target.value)} />
-                    <div style={{ height: 10 }} />
-                    <CreateResults results={results} setResults={setResults} setMode={setMode} />
-                </SlideFade>
-                <SlideFade in={mode === 'question'} offsetY='20px' style={{ display: mode === 'question' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
-                    <CreateQuestions results={results} questions={questions} setQuestions={setQuestions} setMode={setMode} post={post} />
-                </SlideFade>
-
+                {loading ?
+                    <Container centerContent className={styles.fullCenter}>
+                        <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+                    </Container>
+                    :
+                    <>
+                        <SlideFade in={mode === 'result'} offsetY='20px' style={{ display: mode === 'result' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
+                            <Heading as="h3" size="md">
+                                診断のタイトル
+                            </Heading>
+                            <Input className={styles.whiteBg} type="text" placeholder="タイトル" value={name} onChange={(e) => setName(e.target.value)} />
+                            <div style={{ height: 10 }} />
+                            <CreateResults results={results} setResults={setResults} setMode={setMode} />
+                        </SlideFade>
+                        <SlideFade in={mode === 'question'} offsetY='20px' style={{ display: mode === 'question' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
+                            <CreateQuestions results={results} questions={questions} setQuestions={setQuestions} setMode={setMode} post={post} />
+                        </SlideFade>
+                    </>}
             </Flex >
             <div style={{ height: 15 }} />
             <Divider />
@@ -110,7 +122,7 @@ const Home = (props: IQuery) => {
 export default Home
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const cookie = parseCookies(ctx)
-    const query = ctx.query || { shindanId: null, listId: null}
+    const query = ctx.query || { shindanId: null, listId: null }
     const props = {
         shindanId: query.shindanId || null,
         listId: query.listId || null

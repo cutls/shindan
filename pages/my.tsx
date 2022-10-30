@@ -16,7 +16,8 @@ import {
     AlertDialogHeader,
     AlertDialogContent,
     AlertDialogOverlay,
-    Spinner
+    Spinner,
+    Container
 } from '@chakra-ui/react'
 import styles from '../styles/Home.module.scss'
 import { Credential } from '../interfaces/credential'
@@ -28,7 +29,7 @@ const Home = (props: Credential) => {
     const router = useRouter()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = useRef<any>()
-    const [name, setName] = useState('')
+    const [loading, setLoading] = useState(true)
     const [data, setData] = useState<IShindan[]>([])
 
     useEffect(() => {
@@ -43,6 +44,8 @@ const Home = (props: Credential) => {
             setData(data.data)
         } catch (e) {
             alert(`Error`)
+        } finally {
+            setLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -79,8 +82,6 @@ const Home = (props: Credential) => {
     const edit = (i: number) => {
         router.push(`/create?shindanId=${data[i].id}&listId=${data[i].listId}`)
     }
-
-
     return (
         <div>
             <Head>
@@ -88,7 +89,11 @@ const Home = (props: Credential) => {
             </Head>
             <Flex flexWrap="wrap">
                 <SideMenu isUser={true} />
-                <div style={{ padding: 15 }} className={styles.main}>
+                {loading ? 
+                <Container centerContent className={styles.fullCenter}>
+                    <Spinner thickness="4px" speed="0.65s" emptyColor="gray.200" color="blue.500" size="xl" />
+                </Container> 
+                : <div style={{ padding: 15 }} className={styles.main}>
                     {data.map((my, i) => <div className={styles.qs} key={my.id}>
                         <div className={styles.flexStartEnd}>
                             <NextLink href={`/s/${my.listId}`} passHref>
@@ -111,7 +116,7 @@ const Home = (props: Credential) => {
                         </div>
 
                     </div>)}
-                </div>
+                </div>}
 
             </Flex>
             <AlertDialog

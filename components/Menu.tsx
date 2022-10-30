@@ -1,17 +1,7 @@
 import styles from '../styles/Home.module.scss'
-import { NextComponentType } from 'next'
 import {
-	Accordion,
-	AccordionButton,
-	AccordionIcon,
-	AccordionItem,
-	AccordionPanel,
-	Box,
-	LinkOverlay,
-	LinkBox,
 	Drawer,
 	DrawerBody,
-	DrawerFooter,
 	DrawerHeader,
 	DrawerOverlay,
 	DrawerContent,
@@ -27,8 +17,7 @@ import NextLink from 'next/link'
 import { useEffect, useState, useLayoutEffect } from 'react'
 import { HamburgerIcon } from '@chakra-ui/icons'
 import { FaUpload } from 'react-icons/fa'
-import * as api from '../utils/api'
-import { destroyCookie, parseCookies, setCookie } from 'nookies'
+import { setCookie } from 'nookies'
 import { signOut } from 'next-auth/react'
 import router from 'next/router'
 
