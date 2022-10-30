@@ -26,7 +26,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 		<ChakraProvider>
 			<SessionProvider session={pageProps.session}>
 				<PageLoadingContext.Provider value={{ loading: pageLoading }}>
-					{pageLoading && <Progress size='xs' isIndeterminate />}
+					{!pageLoading && <Progress size='xs' isIndeterminate style={{position: 'absolute', width: '100%'}} />}
 					<Component {...pageProps} />
 				</PageLoadingContext.Provider>
 			</SessionProvider>
