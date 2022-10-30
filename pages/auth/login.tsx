@@ -16,6 +16,10 @@ export default function SignIn({ providers }: any) {
 	const { data: session } = useSession()
 	const { loading: pageLoading } = useContext(PageLoadingContext)
 	const [loading, setLoading] = useState(true)
+	const signInWithLoading = (id: any) => {
+		setLoading(true)
+		signIn(id)
+	}
 	useEffect(() => {
 		if (!gcGuard(session)) return setLoading(false)
 		setLoading(true)
@@ -51,7 +55,7 @@ export default function SignIn({ providers }: any) {
 					<Heading>ログイン</Heading>
 					<p>ログインを続行するためには下のボタンを押してください。</p>
 					{Object.values(providers).map((provider: any) => (
-						<Button colorScheme="teal" leftIcon={<FaGoogle />} onClick={() => signIn(provider.id)} key={provider.id}>
+						<Button colorScheme="teal" leftIcon={<FaGoogle />} onClick={() => signInWithLoading(provider.id)} key={provider.id}>
 							Googleでログイン
 						</Button>
 					))}
