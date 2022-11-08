@@ -15,6 +15,8 @@ import styles from '../../styles/Home.module.scss'
 import * as api from '../../utils/api'
 import { Credential } from '../../interfaces/credential'
 import { IResult, IShindan } from '../../interfaces/db'
+import { GetServerSideProps } from 'next'
+import { core as apiGetCore } from '../api/get'
 interface ISelected {
 	questionIndex: number
 	selectIndex: number
@@ -24,7 +26,7 @@ interface IExtendedResult extends IResult {
 }
 const openNewTab = (link: string) => (!window.open(link) ? (location.href = link) : window.open(link))
 
-const Home = (props: Credential) => {
+const Home = (serverPropData: IShindan) => {
 	const router = useRouter()
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [mode, setMode] = useState<'answer' | 'result'>('answer')
@@ -36,9 +38,11 @@ const Home = (props: Credential) => {
 	const [loading, setLoading] = useState(false)
 	const [data, setData] = useState<IShindan | null>(null)
 	const init = useCallback(async (id: string) => {
-		if (!id) return alert('Error')
-		const { data, error } = await api.post<IShindan>(`/api/get`, { id })
-		if (data && !error) setData(data)
+		if (!serverPropData.id) {
+			alert('質問が見つかりませんでした')
+			router.push('/')
+		} 
+		if (serverPropData.id) setData(serverPropData)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 	const makePublic = async () => {
@@ -119,6 +123,10 @@ const Home = (props: Credential) => {
 		<div>
 			<Head>
 				<title>{data.name} - shindan</title>
+				<meta property="og:title" content={data.name} />
+				<meta property="og:description" content={`${data.name}をshindanappでかんたん診断`} />
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta property="og:image" content={`https://shindanapp.vercel.app/api/og?title=${data.name}`} />
 			</Head>
 			<Flex flexWrap="wrap">
 				<SideMenu isUser={user} />
@@ -171,5 +179,15 @@ const Home = (props: Credential) => {
 		</div>
 	)
 }
-
+export const getServerSideProps: GetServerSideProps = async (ctx) => {
+	const id = ctx.query.id
+	try {
+		const data: any = await apiGetCore({ id })
+		if (!data) return { props: {} }
+		return { props: data }
+	} catch (e) {
+		console.error(e)
+		return { props: {} }
+	}
+}
 export default Home
