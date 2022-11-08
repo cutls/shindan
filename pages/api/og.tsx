@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 export const config = {
   runtime: 'experimental-edge',
 };
-const font = fetch(new URL('../../LINESeedJP_TTF_Rg.ttf', import.meta.url)).then(
+const font = fetch('https://d23ymo475owmp.cloudfront.net/shindanapp/LINESeedJP_TTF_Rg.ttf').then(
   (res) => res.arrayBuffer(),
 )
 
@@ -58,7 +58,7 @@ export default async function (req: NextRequest) {
             borderBottomRightRadius: 50
           }}
         >
-          あなたもいますぐ診断‼️ shindanapp
+          あなたもいますぐ診断 shindanapp
         </div>
       </div>
 
