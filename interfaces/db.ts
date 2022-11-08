@@ -17,6 +17,7 @@ export interface IShindan {
     listId: string
     status: 'draft' | 'public' | 'private'
     name: string
+    resultText: string
     results: IResult[]
     questions: IQuestion[]
 }

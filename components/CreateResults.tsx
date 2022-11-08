@@ -7,7 +7,6 @@ import {
     Heading,
     Input,
     Textarea,
-    useDisclosure,
 } from '@chakra-ui/react'
 import styles from '../styles/Home.module.scss'
 import { IResult } from '../interfaces/db'
@@ -33,7 +32,7 @@ const Home = (props: IParam) => {
         const targetResult = results[index]
         if ((newResultTitle || newResultDescription) && !confirm(`現在入力中の診断結果は削除されます。`)) return false
         setNewResultTitle(targetResult.title)
-        setNewResultDescription(targetResult.description)
+        setNewResultDescription(targetResult.description.replace(/\\n/g, '\n'))
         setIsEditResult(index)
     }
     const finishResultEdit = () => {
@@ -48,19 +47,20 @@ const Home = (props: IParam) => {
                 id: uuid(),
                 image: '',
                 title: newResultTitle,
-                description: newResultDescription
+                description: newResultDescription.replace(/\n/g, '\\n')
             })
+            setResults(results)
         } else {
             const newResults = structuredClone(results)
             newResults[isEditResult] = {
                 id: newResults[isEditResult].id,
                 image: '',
                 title: newResultTitle,
-                description: newResultDescription
+                description: newResultDescription.replace(/\n/g, '\\n')
             }
+            console.log(newResults)
             setResults(newResults)
         }
-        setResults(results)
         setNewResultTitle('')
         setNewResultDescription('')
     }
@@ -79,7 +79,7 @@ const Home = (props: IParam) => {
                     <p><b>タイトル: </b>{result.title}</p>
                     <Divider />
                     <p><b>説明</b></p>
-                    <p>{result.description}</p>
+                    <p className={styles.addBr}>{`${result.description.replace(/\\n/g, '\n')}`}</p>
                     <div style={{ height: 15 }} />
                     <div className={styles.flexStartEnd}>
                         <Button colorScheme="green" onClick={async () => editResult(i)} ml={3}>

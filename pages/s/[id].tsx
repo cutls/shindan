@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
-import SideMenu from '../../components/Menu'
+import NextLink from 'next/link'
+import { Anchorme } from 'react-anchorme'
 import {
 	Button,
 	Divider,
@@ -13,7 +14,6 @@ import {
 } from '@chakra-ui/react'
 import styles from '../../styles/Home.module.scss'
 import * as api from '../../utils/api'
-import { Credential } from '../../interfaces/credential'
 import { IResult, IShindan } from '../../interfaces/db'
 import { GetServerSideProps } from 'next'
 import { core as apiGetCore } from '../api/get'
@@ -30,18 +30,17 @@ const Home = (serverPropData: IShindan) => {
 	const router = useRouter()
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [mode, setMode] = useState<'answer' | 'result'>('answer')
-	const [resultTitle, setResultTitle] = useState('')
-	const [resultDesc, setResultDesc] = useState('')
+	const [resultTitle, setResultTitle] = useState<string[]>([])
+	const [resultDesc, setResultDesc] = useState<string[]>([])
 
 	const cancelRef = useRef<any>()
-	const [user, setUser] = useState(false)
 	const [loading, setLoading] = useState(false)
 	const [data, setData] = useState<IShindan | null>(null)
 	const init = useCallback(async (id: string) => {
 		if (!serverPropData.id) {
 			alert('質問が見つかりませんでした')
 			router.push('/')
-		} 
+		}
 		if (serverPropData.id) setData(serverPropData)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -99,17 +98,17 @@ const Home = (serverPropData: IShindan) => {
 			}
 		}
 		const sortedPoints = points.sort((a, b) => b.point - a.point)
-		setResultTitle(sortedPoints[0].title)
-		setResultDesc(sortedPoints[0].description)
+		setResultTitle(sortedPoints.map((i) => i.title))
+		setResultDesc(sortedPoints.map((i) => i.description))
 		setMode('result')
 	}
 	const shareTo = (media: 'twitter' | 'line') => {
-		if (media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！`)}&url=${encodeURIComponent(`https://shindanapp.vercel.app/s/${router.query.id}`)}`)
-		if (media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle}でした！ https://shindanapp.vercel.app/s/${router.query.id}`)}`)
+		if (media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle[0]}でした！`)}&url=${encodeURIComponent(`https://shindanapp.vercel.app/s/${router.query.id}`)}`)
+		if (media === 'line') openNewTab(`https://line.me/R/share?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle[0]}でした！ https://shindanapp.vercel.app/s/${router.query.id}`)}`)
 	}
 	const reset = () => {
-		setResultTitle('')
-		setResultDesc('')
+		setResultTitle([])
+		setResultDesc([])
 		setSelected([])
 		setMode('answer')
 	}
@@ -128,11 +127,10 @@ const Home = (serverPropData: IShindan) => {
 				<meta name="twitter:card" content="summary_large_image" />
 				<meta property="og:image" content={`https://shindanapp.vercel.app/api/og?title=${data.name}`} />
 			</Head>
-			<Flex flexWrap="wrap">
-				<SideMenu isUser={user} />
+			<Flex flexWrap="wrap" justify="center">
 				<div style={{ padding: 15 }} className={styles.main}>
 					<div className={styles.flexStartEnd}>
-						<Heading as="h1" size="xl">
+						<Heading as="h1" size="xl" textAlign="center">
 							{data.name}
 						</Heading>
 						{data.status === 'draft' && <Button colorScheme="blue" onClick={() => makePublic()} style={{ marginRight: 10 }} isLoading={loading}>
@@ -152,27 +150,67 @@ const Home = (serverPropData: IShindan) => {
 								</div>
 							)}
 						</div>)}
-						<Button colorScheme="teal" size="lg" disabled={!getIsCompleted()} onClick={() => calculate()}>
-							結果を見る
-						</Button>
+						<Flex flexWrap="wrap" justify="center">
+							<Button colorScheme="teal" size="lg" disabled={!getIsCompleted()} onClick={() => calculate()}>
+								結果を見る
+							</Button>
+						</Flex>
 					</SlideFade>
 					<SlideFade in={mode === 'result'} offsetY='20px' style={{ display: mode === 'result' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
+						<p className={styles.addBr}>{data.resultText.replace(/\\n/g, '\n') || ''}</p>
 						<div className={styles.question}>
-							<Heading as="h3" size="2xl">
-								{resultTitle}
+							<Heading as="h3" size="xl">
+								{resultTitle[0]}
 							</Heading>
 							<Divider style={{ marginTop: 10, marginBottom: 10 }} />
-							<p>{resultDesc}</p>
-							<Divider style={{ marginTop: 10, marginBottom: 10 }} />
-							<Button colorScheme="twitter" onClick={() => shareTo('twitter')}>Twitterでシェア</Button>
-							<span style={{ marginLeft: 10 }} />
-							<Button colorScheme="whatsapp" onClick={() => shareTo('line')}>LINEでシェア</Button>
+							<p className={styles.addBr}>
+								<Anchorme target="_blank" rel="noreferrer noopener">
+									{`${(resultDesc[0] || '').replace(/\\n/g, '\n')}`}
+								</Anchorme>
+							</p>
 						</div>
-						<Button colorScheme="teal" size="lg" onClick={() => reset()}>
-							もう一度診断
-						</Button>
+						<p style={{ textAlign: 'center' }}>2位以下はこちら</p>
+						<Flex flexWrap="wrap" justify="space-between">
+							<div className={`${styles.question} ${styles.second}`}>
+								<Heading as="h4" size="lg">
+									2位: {resultTitle[1] || ''}
+								</Heading>
+								<Divider style={{ marginTop: 10, marginBottom: 10 }} />
+								<p className={styles.addBr}>
+									<Anchorme target="_blank" rel="noreferrer noopener">
+										{`${(resultDesc[1] || '').replace(/\\n/g, '\n')}`}
+									</Anchorme>
+								</p>
+							</div>
+							{resultTitle[2] && <div className={`${styles.question} ${styles.second}`}>
+								<Heading as="h4" size="lg">
+									3位: {resultTitle[2]}
+								</Heading>
+								<Divider style={{ marginTop: 10, marginBottom: 10 }} />
+								<p className={styles.addBr}>
+									<Anchorme target="_blank" rel="noreferrer noopener">
+										{`${(resultDesc[2] || '').replace(/\\n/g, '\n')}`}
+									</Anchorme>
+								</p>
+							</div>}
+						</Flex>
+						<Flex flexWrap="wrap" justify="space-around" align="center">
+							<Button colorScheme="teal" size="lg" onClick={() => reset()}>
+								もう一度診断
+							</Button>
+							<Button colorScheme="twitter" onClick={() => shareTo('twitter')}>Twitterでシェア</Button>
+							<Button colorScheme="whatsapp" onClick={() => shareTo('line')}>LINEでシェア</Button>
+						</Flex>
+						<div style={{ marginBottom: 10 }} />
+						<Flex flexWrap="wrap" justify="center">
 
+						</Flex>
 					</SlideFade>
+					<div className={styles.footer}>
+						<NextLink href="/" passHref>
+							shindanapp.vercel.app
+						</NextLink>
+					</div>
 				</div>
 
 			</Flex>

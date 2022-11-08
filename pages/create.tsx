@@ -15,6 +15,7 @@ import {
     Portal,
     SlideFade,
     Spinner,
+    Textarea,
     useDisclosure,
 } from '@chakra-ui/react'
 import styles from '../styles/Home.module.scss'
@@ -29,10 +30,11 @@ interface IQuery {
 const Home = (props: IQuery) => {
     const router = useRouter()
     const { isOpen, onOpen, onClose } = useDisclosure()
-	const { loading: pageLoading } = useContext(PageLoadingContext)
+    const { loading: pageLoading } = useContext(PageLoadingContext)
     const cancelRef = useRef<any>()
     const [mode, setMode] = useState<'result' | 'question'>('result')
     const [name, setName] = useState('')
+    const [resultText, setResultText] = useState('')
     const [loading, setLoading] = useState(false)
     const [results, setResults] = useState<IResult[]>([])
     const [questions, setQuestions] = useState<IQuestion[]>([])
@@ -53,13 +55,15 @@ const Home = (props: IQuery) => {
         if (obj.listId) {
             setLoading(true)
             try {
-                const { data, error } = await api.post<IShindan>(`/api/get`, { id: obj.listId })
-                if (!data || error) return alert(`Error`)
+                const { data: dataRaw, error } = await api.post<IShindan>(`/api/get`, { id: obj.listId })
+                if (!dataRaw || error) return alert(`Error`)
+                const data = dataRaw
                 setResults(data.results)
                 setQuestions(data.questions)
                 setName(data.name)
+                setResultText(data.resultText.replace(/\\n/g, '\n'))
             } catch {
-                alert(`Error`)
+                alert(`Error undetected error`)
             } finally {
                 setLoading(false)
             }
@@ -73,9 +77,9 @@ const Home = (props: IQuery) => {
 
     const post = async () => {
         try {
-            console.log({ results, questions, name })
             const id = obj.shindanId || null
-            const set = id ? { results, questions, name, id } : { results, questions, name }
+            const resultTextBred = resultText.replace(/\n/g, '\\n')
+            const set = id ? { results, questions, name, resultText: resultTextBred, id } : { results, questions, resultText: resultTextBred, name }
             const url = id ? `/api/user/update` : `/api/user/post`
             const data = await api.post<any>(url, set)
             if (!data.data.success) throw 'Request Error'
@@ -104,6 +108,9 @@ const Home = (props: IQuery) => {
                                 診断のタイトル
                             </Heading>
                             <Input className={styles.whiteBg} type="text" placeholder="タイトル" value={name} onChange={(e) => setName(e.target.value)} />
+                            <div style={{ height: 10 }} />
+                            <p>結果が出たときに(結果によらず)表示するテキスト</p>
+                            <Textarea className={styles.whiteBg} placeholder="結果が出たときに表示" value={resultText} onChange={(e) => setResultText(e.target.value)} />
                             <div style={{ height: 10 }} />
                             <CreateResults results={results} setResults={setResults} setMode={setMode} />
                         </SlideFade>

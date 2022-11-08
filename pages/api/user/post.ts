@@ -15,6 +15,7 @@ type Error = {
 }
 interface IParam {
     name: string
+    resultText: string
     results: IResult[]
     questions: IQuestion[]
 }
@@ -25,12 +26,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const email = session.user?.email
         if (!email) return res.status(500).json({ error: true, message: 'ログインされていません' })
         const request: IParam = JSON.parse(req.body)
-        const { name, results, questions } = request
+        const { name, results, questions, resultText } = request
         if (!name || !results.length || !questions.length) return res.status(500).json({ success: false, id: `` })
         const id = uuid()
         const listId = uuid()
         const set = {
-            id, name, results, questions, status: 'draft', listId
+            id, name, results, questions, status: 'draft', listId, resultText
         }
         await db.put(email, id, set)
         const listData = {

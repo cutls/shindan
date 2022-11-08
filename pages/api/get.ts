@@ -9,9 +9,10 @@ interface Error {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<IShindan | Error>) {
 	try {
-		return await core(JSON.parse(req.body), req)
+		const data = await core(JSON.parse(req.body), req)
+		return res.status(200).json(data || { error: true, message: 'unknown error' })
 	} catch (e: any) {
-		if(e.length > 1) return res.status(e[0]).json(e[1])
+		if (e.length > 1) return res.status(e[0]).json(e[1])
 		console.error(e)
 	}
 }

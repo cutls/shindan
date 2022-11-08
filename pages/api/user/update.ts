@@ -14,6 +14,7 @@ type Error = {
 }
 interface IParam {
     name: string
+    resultText: string
     results: IResult[]
     questions: IQuestion[]
     id: string
@@ -25,14 +26,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const email = session.user?.email
         if (!email) return res.status(500).json({ error: true, message: 'ログインされていません' })
         const request: IParam = JSON.parse(req.body)
-        const { name, results, questions, id } = request
+        const { name, results, questions, id, resultText } = request
         if (!name || !results.length || !questions.length) return res.status(500).json({ success: false, id: '' })
         const data = await db.get<IShindan>(email, id)
         const set = {
-            id, name, results, questions, status: 'draft'
+            id, name, results, questions, status: 'draft', resultText
         }
         await db.update(email, id, set)
-        res.status(200).json({ success: true,  id: data?.listId || ''})
+        res.status(200).json({ success: true, id: data?.listId || '' })
     } catch (e: any) {
         res.status(200).json({ error: true, message: e.toString() })
     }
