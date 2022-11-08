@@ -123,7 +123,7 @@ const Home = (serverPropData: IShindan) => {
 			<Head>
 				<title>{data.name} - shindan</title>
 				<meta property="og:title" content={data.name} />
-				<meta property="og:url" content={`https://shindanapp.vercel.app/s/${data.id}`} />
+				<meta property="og:url" content={`https://shindanapp.vercel.app/s/${data.listId}`} />
 				<meta property="og:description" content={`${data.name}をshindanappでかんたん診断`} />
 				<meta property="og:type" content="website" />
 				<meta property="og:site_name" content="shindanapp" />
