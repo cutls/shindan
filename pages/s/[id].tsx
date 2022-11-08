@@ -26,7 +26,7 @@ interface IExtendedResult extends IResult {
 }
 const openNewTab = (link: string) => (!window.open(link) ? (location.href = link) : window.open(link))
 
-const Home = (serverPropData: IShindan) => {
+const Home = (data: IShindan) => {
 	const router = useRouter()
 	const { isOpen, onOpen, onClose } = useDisclosure()
 	const [mode, setMode] = useState<'answer' | 'result'>('answer')
@@ -35,13 +35,11 @@ const Home = (serverPropData: IShindan) => {
 
 	const cancelRef = useRef<any>()
 	const [loading, setLoading] = useState(false)
-	const [data, setData] = useState<IShindan | null>(null)
 	const init = useCallback(async (id: string) => {
-		if (!serverPropData.id) {
+		if (!data.id) {
 			alert('質問が見つかりませんでした')
 			router.push('/')
 		}
-		if (serverPropData.id) setData(serverPropData)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 	const makePublic = async () => {
@@ -113,11 +111,7 @@ const Home = (serverPropData: IShindan) => {
 		setMode('answer')
 	}
 	const getIsSelected = (i: number, j: number) => !!selected.find((s) => s.questionIndex === i && s.selectIndex === j)
-	const getIsCompleted = () => selected.length === data?.questions.length
-
-	if (!data) return <Flex justifyContent="center" alignItems="center" flexDir="column" className={styles.centerOfScreen}>
-		<Spinner size="lg" />
-	</Flex>
+	const getIsCompleted = () => data?.questions ? selected.length === data?.questions.length : false
 	return (
 		<div>
 			<Head>
@@ -143,7 +137,7 @@ const Home = (serverPropData: IShindan) => {
 
 					<div style={{ height: 15 }} />
 					<SlideFade in={mode === 'answer'} offsetY='20px' style={{ display: mode === 'answer' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
-						{data.questions.map((q, i) => <div className={styles.question} key={`q--${i}`}>
+						{data.questions && data.questions.map((q, i) => <div className={styles.question} key={`q--${i}`}>
 							<Heading as="h3" size="md">
 								{q.text}
 							</Heading>
@@ -160,7 +154,7 @@ const Home = (serverPropData: IShindan) => {
 						</Flex>
 					</SlideFade>
 					<SlideFade in={mode === 'result'} offsetY='20px' style={{ display: mode === 'result' ? 'block' : 'none', flexGrow: 1, padding: 10 }}>
-						<p className={styles.addBr}>{data.resultText.replace(/\\n/g, '\n') || ''}</p>
+						<p className={styles.addBr}>{(data.resultText || '').replace(/\\n/g, '\n') || ''}</p>
 						<div className={styles.question}>
 							<Heading as="h3" size="xl">
 								{resultTitle[0]}
