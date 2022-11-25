@@ -61,8 +61,9 @@ const Home = (props: IQuery) => {
                 setResults(data.results)
                 setQuestions(data.questions)
                 setName(data.name)
-                setResultText(data.resultText.replace(/\\n/g, '\n'))
-            } catch {
+                setResultText((data.resultText || '').replace(/\\n/g, '\n'))
+            } catch(e) {
+                console.error(e)
                 alert(`Error undetected error`)
             } finally {
                 setLoading(false)

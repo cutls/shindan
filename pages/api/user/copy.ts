@@ -28,11 +28,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
 
         const data = await db.get<IShindan>(email, id)
         if (!data) return res.status(400).json({ error: true, message: 'no shindan id found in request' })
-        const { results, questions, name } = data
+        const { results, questions, name, resultText } = data
         const shindanId = uuid()
         const listId = uuid()
+        const resultUuidMap: { [key: string]: string } = {}
+        const newResults = results.map((item) => {
+            const nextId = uuid()
+            resultUuidMap[item.id] = nextId
+            item.id = nextId
+            return item
+        })
+        const newQuestions = questions.map((item) => {
+            item.id = uuid()
+            const newSelections = item.selections.map((s) => {
+                s.id = uuid()
+                const newWeight = s.weight.map((w) => {
+                    const newUuid = resultUuidMap[w.for]
+                    w.for = newUuid
+                    return w
+                })
+                s.weight = newWeight
+                return s
+            })
+            item.selections = newSelections
+            return item
+        })
         const set = {
-            id: shindanId, name: `[複製] ${name}`, results, questions, listId
+            id: shindanId, name: `[複製] ${name}`, results: newResults, questions: newQuestions, listId, resultText
         }
         await db.put(email, shindanId, set)
         const listData = {
