@@ -9,6 +9,7 @@ import {
 } from '@chakra-ui/react'
 import styles from '../styles/Home.module.scss'
 import { IQuestion, IResult, ISelection } from '../interfaces/db'
+import { v4 as uuid } from 'uuid'
 type IState<T> = Dispatch<SetStateAction<T>>
 interface IParam {
     setMode: IState<'result' | 'question'>
@@ -21,7 +22,7 @@ interface IParam {
 const sleep = (msec: number) => new Promise((resolve) => setTimeout(resolve, msec))
 const Home = (props: IParam) => {
     const { setMode, results, questions, setQuestions, post } = props
-    const [isEditQuestion, setIsEditQuestion] = useState(-1)
+    const [editingQuestion, setEditingQuestion] = useState<null | string>(null)
     const [newText, setNewText] = useState('')
     const [loading, setLoading] = useState(false)
     const [newSelectionName, setNewSelectionName] = useState('')
@@ -57,13 +58,19 @@ const Home = (props: IParam) => {
 
     const addNewQuestion = () => {
         const newQuestion = structuredClone(questions)
-        if (isEditQuestion === -1) {
+        if (editingQuestion === null) {
             newQuestion.push({
+                id: uuid(),
                 text: newText,
                 selections: newSelections
             })
         } else {
-            newQuestion[isEditQuestion] = {
+            console.log(newQuestion, editingQuestion)
+            const target = newQuestion.findIndex((i) => i.id === editingQuestion)
+            console.log(target)
+            if (target === -1) return alert('質問が見つかりませんでした')
+            newQuestion[target] = {
+                id: editingQuestion,
                 text: newText,
                 selections: newSelections
             }
@@ -72,22 +79,30 @@ const Home = (props: IParam) => {
         setNewSelectionName('')
         setNewText('')
         setNewSelections([])
-        setIsEditQuestion(-1)
+        setEditingQuestion(null)
     }
     const addNewSelection = () => {
         const newNewSelections = structuredClone(newSelections)
         setNewSelectionName('')
-        newNewSelections.push({ name: newSelectionName, image: '', weight: [] })
+        newNewSelections.push({ id: uuid(), name: newSelectionName, image: '', weight: [] })
         setNewSelections(newNewSelections)
     }
-    const deleteQuestion = (index: number) => setQuestions(questions.filter((r, i) => i !== index))
+    const deleteQuestion = (q: IQuestion) => setQuestions(questions.filter((r, i) => r.id !== q.id))
+    const sortQuestion = (cmd: 'up' | 'down', target: IQuestion, i: number) => {
+        if (editingQuestion) return alert('問いの編集中は使えません')
+        const newI = cmd === 'up' ? i - 1 : i + 1
+        if (newI < 0 || newI >= questions.length) return alert('この操作はできません')
+        const newQuestions = questions.filter((n, j) => j !== i)
+        newQuestions.splice(newI, 0, target)
+        setQuestions(newQuestions)
+    }
     const deleteSelection = (parent: number, children: number) => {
         let i = 0
         const newQ = []
         if (parent === -1) {
             const newNewSelections = structuredClone(newSelections)
-            delete newNewSelections[children]
-            setNewSelections(newNewSelections)
+            const newNewSelectionsFiltered = newNewSelections.filter((item, index) => index !== children)
+            setNewSelections(newNewSelectionsFiltered)
         } else {
             for (const q of questions) {
                 if (i !== parent) {
@@ -102,20 +117,38 @@ const Home = (props: IParam) => {
         }
 
     }
-    const editQuestion = (i: number) => {
+    const editSelection = (parent: number, children: number) => {
+        if (parent === -1) {
+            const newNewSelections = structuredClone(newSelections)
+            const currentName = newNewSelections[children].name
+            const newName = prompt('選択肢名の変更', currentName)
+            if (!newName) return alert('空白にはできません')
+            newNewSelections[children].name = newName
+            setNewSelections(newNewSelections)
+        } else {
+            return alert('編集中のみ利用可能です')
+        }
+    }
+    const sortSelection = (cmd: 'up' | 'down', target: ISelection, i: number) => {
+        if (!editingQuestion) return alert('Error')
+        const newI = cmd === 'up' ? i - 1 : i + 1
+        if (newI < 0 || newI >= newSelections.length) return alert('この操作はできません')
+        const newNewSelections = newSelections.filter((n, j) => j !== i)
+        newNewSelections.splice(newI, 0, target)
+        setNewSelections(newNewSelections)
+    }
+    const editQuestion = (target: IQuestion) => {
         if (newText && !confirm(`現在入力中の問いは削除されます。`)) return false
-        console.log(i)
-        const target = questions[i]
         setNewText(target.text)
         setNewSelectionName('')
         setNewSelections(target.selections)
-        setIsEditQuestion(i)
+        setEditingQuestion(target.id)
     }
     const finishQuestionEdit = () => {
         if (newText && !confirm(`現在入力中の問いは削除されます。`)) return false
         setNewText('')
         setNewSelections([])
-        setIsEditQuestion(-1)
+        setEditingQuestion(null)
     }
     const complete = async () => {
         try {
@@ -141,12 +174,16 @@ const Home = (props: IParam) => {
                     <div className={styles.flexStartEnd}>
                         <p>問{i + 1}.</p>
                         <div className={styles.flexStartEnd}>
-                            <Button colorScheme="green" onClick={async () => editQuestion(i)} ml={3}>
+                            <Button colorScheme="green" onClick={async () => editQuestion(question)} ml={3}>
                                 編集
                             </Button>
-                            <Button colorScheme="red" onClick={async () => deleteQuestion(i)} ml={3}>
+                            <Button colorScheme="red" onClick={async () => deleteQuestion(question)} ml={3}>
                                 問いの削除
                             </Button>
+                            <div className={styles.sortWrap}>
+                                <div className={styles.sort} onClick={() => sortQuestion('up', question, i)}>↑</div>
+                                <div className={styles.sort} onClick={() => sortQuestion('down', question, i)}>↓</div>
+                            </div>
                         </div>
                     </div>
                     <p>{question.text}</p>
@@ -158,24 +195,13 @@ const Home = (props: IParam) => {
                                         <p>選択肢{j + 1}.</p>
                                         <p>{selection.name}</p>
                                     </div>
-                                    <Button colorScheme="orange" onClick={async () => deleteSelection(i, j)} ml={3}>
-                                        選択肢の削除
-                                    </Button>
                                 </div>
-                                <p>{selection.name}</p>
                                 <div style={{ height: 5 }} />
                                 <Flex flexWrap="wrap">
                                     {results.map((result, k) => (
-                                        <div key={`${selection.name}-result${k}`}>
-                                            <span>{result.title}</span>
-                                            <Select className={styles.weightSelectBox} value={getWeightValue(i, j, result.id)} onChange={(e) => updateWeight(i, j, k, result.id, parseInt(e.target.value, 10))}>
-                                                <option value={0}>(選択してください)</option>
-                                                <option value={1}>1(関連が低い)</option>
-                                                <option value={2}>2</option>
-                                                <option value={3}>3</option>
-                                                <option value={4}>4</option>
-                                                <option value={5}>5(関連が高い)</option>
-                                            </Select>
+                                        <div className={styles.readOnlyText} key={`${selection.name}-result${k}`}>
+                                            <div>{result.title}</div>
+                                            <div>{getWeightValue(i, j, result.id)}</div>
                                         </div>
                                     ))}
                                 </Flex>
@@ -188,7 +214,7 @@ const Home = (props: IParam) => {
             <div style={{ height: 15 }} />
             <div className={styles.box1}>
                 <div className={styles.flexStartEnd}>
-                    <p>新しい問い</p>
+                    <p>{editingQuestion ? '問いを編集中' : '新しい問い'}</p>
                 </div>
                 <Input className={styles.whiteBg} type="text" placeholder="質問内容" value={newText} onChange={(e) => setNewText(e.target.value)} />
                 <div style={{ height: 5 }} />
@@ -199,9 +225,18 @@ const Home = (props: IParam) => {
                                 <p>選択肢{j + 1}.</p>
                                 <p>{selection.name}</p>
                             </div>
-                            <Button colorScheme="orange" onClick={async () => deleteSelection(-1, j)} ml={3}>
-                                選択肢の削除
-                            </Button>
+                            <div style={{ display: 'flex' }}>
+                                <Button colorScheme="teal" onClick={async () => editSelection(-1, j)} ml={3}>
+                                    文章変更
+                                </Button>
+                                <Button colorScheme="orange" onClick={async () => deleteSelection(-1, j)} ml={3}>
+                                    選択肢の削除
+                                </Button>
+                                <div className={styles.sortWrap}>
+                                    <div className={styles.sort} onClick={() => sortSelection('up', selection, j)}>↑</div>
+                                    <div className={styles.sort} onClick={() => sortSelection('down', selection, j)}>↓</div>
+                                </div>
+                            </div>
                         </div>
                         <div style={{ height: 5 }} />
                         <Flex flexWrap="wrap">
@@ -232,10 +267,10 @@ const Home = (props: IParam) => {
             </div>
             <div style={{ height: 5 }} />
             <Button colorScheme="blue" onClick={async () => addNewQuestion()} ml={3}>
-                問いの追加
+                {editingQuestion ? '編集完了' : '問いの追加'}
             </Button>
             {
-                isEditQuestion !== -1 && <Button colorScheme="orange" onClick={async () => finishQuestionEdit()} ml={3}>
+                editingQuestion !== null && <Button colorScheme="orange" onClick={async () => finishQuestionEdit()} ml={3}>
                     編集を破棄
                 </Button>
             }

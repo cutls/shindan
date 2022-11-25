@@ -92,14 +92,14 @@ const Home = (props: IParam) => {
                 </div>
             ))}
             <div className={styles.box1}>
-                <p>新しい結果</p>
+                <p>{isEditResult !== -1 ? '結果を編集中' : '新しい結果'}</p>
                 <Input className={styles.whiteBg} type="text" placeholder="タイトル" value={newResultTitle} onChange={(e) => setNewResultTitle(e.target.value)} />
                 <div style={{ height: 5 }} />
                 <Textarea className={styles.whiteBg} placeholder="説明" value={newResultDescription} onChange={(e) => setNewResultDescription(e.target.value)} />
                 <div style={{ height: 5 }} />
                 {/* uploader */}
                 <Button colorScheme="blue" onClick={async () => addNewResult()} ml={3}>
-                    追加
+                    {isEditResult !== -1 ? '編集完了' : '追加'}
                 </Button>
                 {isEditResult !== -1 && <Button colorScheme="orange" onClick={async () => finishResultEdit()} ml={3}>
                     編集を破棄

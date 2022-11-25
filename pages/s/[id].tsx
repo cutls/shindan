@@ -17,10 +17,7 @@ import * as api from '../../utils/api'
 import { IResult, IShindan } from '../../interfaces/db'
 import { GetServerSideProps } from 'next'
 import { core as apiGetCore } from '../api/get'
-interface ISelected {
-	questionIndex: number
-	selectIndex: number
-}
+import { ISelected } from '../../interfaces/common'
 interface IExtendedResult extends IResult {
 	point: number
 }
@@ -99,6 +96,8 @@ const Home = (data: IShindan) => {
 		setResultTitle(sortedPoints.map((i) => i.title))
 		setResultDesc(sortedPoints.map((i) => i.description))
 		setMode('result')
+		// is public
+		api.post('/api/log', { id: data.id, selection: selected })
 	}
 	const shareTo = (media: 'twitter' | 'line') => {
 		if (media === 'twitter') openNewTab(`https://twitter.com/intent/tweet?text=${encodeURIComponent(`診断「${data?.name}」の結果は${resultTitle[0]}でした！`)}&url=${encodeURIComponent(`https://shindanapp.vercel.app/s/${router.query.id}`)}`)
