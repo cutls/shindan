@@ -23,7 +23,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         if (got) {
             const newGot = JSON.parse(JSON.stringify(got))
             newGot[uid] = { selection, createdAt }
-            await db.update('logs', id, got)
+            await db.update('logs', id, newGot)
         } else {
             await db.put('logs', id, { [uid]: { selection, createdAt } })
         }
