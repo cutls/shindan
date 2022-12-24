@@ -88,7 +88,7 @@ const Home = (props: Credential) => {
                                 <p><b>Result</b>(2nd): {log.resultTitle[1]}</p>
                                 <table className={styles.table}>
                                     {log.selected.map((selected, j) =>
-                                        <tr>
+                                        <tr key={`${log.id}-${j}`}>
                                             <td className={styles.td}>{selected.question.text}</td>
                                             <td className={styles.td}>{selected.selection.name}</td>
                                         </tr>
