@@ -65,9 +65,7 @@ const Home = (props: IParam) => {
                 selections: newSelections
             })
         } else {
-            console.log(newQuestion, editingQuestion)
             const target = newQuestion.findIndex((i) => i.id === editingQuestion)
-            console.log(target)
             if (target === -1) return alert('質問が見つかりませんでした')
             newQuestion[target] = {
                 id: editingQuestion,

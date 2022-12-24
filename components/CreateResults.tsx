@@ -58,7 +58,6 @@ const Home = (props: IParam) => {
                 title: newResultTitle,
                 description: newResultDescription.replace(/\n/g, '\\n')
             }
-            console.log(newResults)
             setResults(newResults)
         }
         setNewResultTitle('')

@@ -32,7 +32,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
         const { id }: IParam = JSON.parse(req.body)
         const email = session?.user?.email
         if (!email) return res.status(400).json({ error: true, message: 'auth error' })
-        console.log(id)
         const list = await db.get<ILogs>('logs', id)
         if (!list) return res.status(400).json({ error: true, message: 'No listed log' })
         const shindan = await db.get<IShindan>(email, id)

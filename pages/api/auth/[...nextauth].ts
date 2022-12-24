@@ -35,7 +35,6 @@ const options = {
 		async jwt({ token, account }: any) {
 			// Persist the OAuth access_token to the token right after signin
 			if (account) {
-				console.log(account)
 				token.accessToken = account.access_token
 				token.refreshToken = account.refresh_token
 			}
