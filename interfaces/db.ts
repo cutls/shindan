@@ -40,3 +40,13 @@ interface IWeight {
     for: string //result id
     weight: number
 }
+export interface ILogs {
+    [id: string]: ILog
+}
+interface ILog {
+    createdAt: number
+    selection: {
+        questionIndex: number
+        selectIndex: number
+    }[]
+}

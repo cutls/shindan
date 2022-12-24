@@ -84,6 +84,9 @@ const Home = (props: Credential) => {
     const edit = (i: number) => {
         router.push(`/create?shindanId=${data[i].id}&listId=${data[i].listId}`)
     }
+    const log = (i: number) => {
+        router.push(`/log/${data[i].id}`)
+    }
     return (
         <div>
             <Head>
@@ -110,6 +113,9 @@ const Home = (props: Credential) => {
                                 </Button>
                                 <Button onClick={() => copy(i)} style={{ marginRight: 10 }}>
                                     複製
+                                </Button>
+                                <Button onClick={() => log(i)} style={{ marginRight: 10 }}>
+                                    ログ
                                 </Button>
                                 <Button colorScheme="red" onClick={() => deleteItem(i)} style={{ marginRight: 10 }}>
                                     削除
