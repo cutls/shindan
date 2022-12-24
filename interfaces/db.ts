@@ -28,10 +28,12 @@ export interface IResult {
     description: string
 }
 export interface IQuestion {
+    id: string
     text: string
     selections: ISelection[]
 }
 export interface ISelection {
+    id: string
     name: string
     image: string
     weight: IWeight[]
